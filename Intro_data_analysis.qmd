@@ -77,8 +77,9 @@ library("lubridate")
 ```{julia}
 using PythonCall #| hide_line
 @pyexec """ #| hide_line
-import rioxarray
-import xarray as xr
+import geopandas #Load GeoJSON data into pandas dataframes
+import rasterio #Handle reprojection of geospatial data
+import xarray as xr #Handle I/O and compute for n-dimensional array data
 """ #|hide_line
 ```
 
@@ -128,6 +129,11 @@ urlList
 ``` 
 :::
 
+## Python
+```{julia}
+@pyexec """ #| hide_line
+""" #|hide_line
+```
 
 ## Opening the data and first map
 
@@ -207,6 +213,16 @@ m3
 """ #| hide_line
 ```
 
+## Python
+
+```{julia}
+@pyexec """ #| hide_line
+_proj_str = "+proj=ob_tran +o_proj=latlon +o_lon=90 +o_lat_p=39.25 +lon_0=18.0"
+crs = rasterio.crs.CRS.from_proj4(_proj_str)
+cosmo_era6 = cosmo_era6.rio.write_crs(crs)
+cosmo_era6 = cosmo_era6.rio.reproject("EPSG:4326")["tas"].chunk({"time":1})
+""" #|hide_line
+```
 :::
 
 ## Restricting to an area of interest
@@ -286,8 +302,20 @@ summer <- c(rger[,,,1:3], rger[,,,10:12])
 ```
 ::: 
 
-Now we compute the standard deviation and the mean of the time series for the "summer" and the "winter" dataset.
+## Python
+```{julia}
+@pyexec """ #| hide_line
+def is_summer(month):
+    return (month > 3) & (month < 10)
 
+def is_winter(month):
+    return (month <= 3) | (month >= 10)
+
+cosmo_era6_summer = cosmo_era6.sel(time=is_summer(cosmo_era6['time.month']))
+cosmo_era6_winter = cosmo_era6.sel(time=is_winter(cosmo_era6['time.month']))
+""" #|hide_line
+```
+Now we compute the standard deviation and the mean of the time series for the "summer" and the "winter" dataset.
 
 ::: {.panel-tabset}
 ## Julia
@@ -312,5 +340,12 @@ plot(summer_mean_tas)
 ```
 ::: 
 
+```{julia}
+@pyexec """ #| hide_line
+cosmo_era6_winter_mean = cosmo_era6_winter.mean(dim="time",skipna=True)
+cosmo_era6_summer_mean = cosmo_era6_summer.mean(dim="time",skipna=True)
 
-
+cosmo_era6_winter_std = cosmo_era6_winter.std(dim="time",skipna=True)
+cosmo_era6_summer_std = cosmo_era6_summer.std(dim="time",skipna=True)
+""" #|hide_line
+```
