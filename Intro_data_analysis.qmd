@@ -45,6 +45,8 @@ First we load the relevant packages in the different languages for working with 
 ::: {.panel-tabset}
 ## Julia
 ```{julia}
+using Pkg
+Pkg.instantiate()
 using YAXArrays # This package is for handling large raster data 
 using NetCDF # This package is for opening NetCDF files 
 using GLMakie # Plotting package with a focus on interactivity
@@ -132,6 +134,7 @@ urlList
 ## Python
 ```{julia}
 @pyexec """ #| hide_line
+cosmo_era6 = xr.open_mfdataset("data/*.nc", parallel=True, engine='h5netcdf')
 """ #|hide_line
 ```
 
@@ -169,6 +172,12 @@ maps::map(add = TRUE)
 """; #| hide_line
 ```
 
+## Python
+```{julia}
+@pyexec """ #| hide_line
+cosmo_era6 = xr.open_mfdataset("data/*.nc", parallel=True, engine='h5netcdf')
+""" #|hide_line
+```
 :::
 
 ## Coordinate reference system of the data
