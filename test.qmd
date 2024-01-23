@@ -1,0 +1,50 @@
+---
+title: "COSMO transformations using R"
+author: Edzer Pebesma
+---
+
+This assumes the data are in subdirectory `COSMO-REA`
+
+## Read as curvilinear, use geolocation arrays
+
+```{r}
+library(stars)
+dir = "COSMO-REA"
+f = paste0(dir, "/", list.files(dir))
+(r = read_stars(f)) # reads geolocation arrays using GDAL
+plot(r[,,,1], downsample = 10, reset = FALSE)
+maps::map(add = TRUE) # plots in geographic coordinates
+```
+
+## Read in rotated grid, transform parametrically
+
+This does not use the geolocation arrays:
+```{r}
+l = lapply(f[1], function(x) read_mdim(x, "tas")) # uses GDAL MDIM C++ API: no CRS
+rg = do.call(c, l)
+crs = st_crs(read_stars("T_2M.2D.1995.MonMean.grb")) # read WKT from a grib
+cat(crs$wkt, "\n")
+st_crs(rg) = crs
+st_transform(rg[,,,1], 'OGC:CRS84') |> plot(downsample = 10, axes = TRUE)
+maps::map(add = TRUE) # plots in geographic coordinates
+```
+
+## Warp to CRS84
+
+`gdal_warp` uses the geolocation arrays, and transforms default to OGC:CRS84
+```{r}
+gdal_utils("warp", f[1], "out.tif")
+w = read_stars("out.tif") 
+plot(w[,,,1], axes = TRUE, reset = FALSE)
+maps::map(add = TRUE) # plots in geographic coordinates
+```
+
+## "Do" everything in rotated grid
+
+Uses `crs` as the target CRS:
+```{r}
+rg = read_mdim(f[1], "tas")
+maps::map(plot = FALSE, fill = TRUE) |> st_as_sfc() -> m
+plot(rg[,,,1], reset = FALSE, axes = TRUE)
+st_transform(m, crs) |> plot(add = TRUE)
+```
