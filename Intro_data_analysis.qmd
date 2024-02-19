@@ -39,6 +39,8 @@ format:
   html: default
   pdf:
     pdf-engine: xelatex
+  markdown_strict:
+    separate: true
 toc: true
 number-sections: true
 documentclass: article
@@ -50,10 +52,13 @@ filters:
 # Introduction
 
 This tutorial will showcase how to work with raster data efficiently. 
-
-In this tutorial we are going to use the COSMO REA reanalyis near surface air temperature data. The data is an reanalysis dataset on a 6km by 6km grid. We are going to use the monthly average values, but the data is also avialable with an hourly or daily temporal resolution.
-
 The analysis will be shown in Julia, Python and R to showcase the similarities and differences in handling raster data in these ecosystems.
+
+In this tutorial we are going to use the COSMO REA reanalyis near surface air temperature data. 
+The data is an reanalysis dataset on a 6km by 6km grid.
+We are going to use the monthly average values,
+but the data is also avialable with an hourly or daily temporal resolution.
+
 
 # Time series analysis 
 
