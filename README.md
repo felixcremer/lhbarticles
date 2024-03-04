@@ -29,3 +29,20 @@ To run the three language quarto notebook we are using Julia as the main process
 - After this setup we can use the pkg repl with the conda command to install shared conda environment
 - For example to install the sf R package we use this command in the Julia REPL:
 - ] conda add r-sf
+
+
+
+# Convert the quarto notebook to mkdocs
+
+We need to convert the quarto notebook to a markdown file for mkdocs to put it into the Living Handbook. 
+Doing 
+`quarto render Intro_data_analysis.md` 
+will convert the quarto notebook into an html to look at, a PDF and a markdown which can then be copied into the LivingHandbook repository. 
+We need to slightly postprocess this markdown file so that the tabs are working in mkdocs. 
+We need to convert the ### to === by using sed:
+`sed  -i 's/###/===/g' Intro_Raster_Data_Analysis_ENG.md `
+
+We need to tab every code block once. I haven't found a good way to automatize this yet. 
+
+And we need to replace the folderpath for the images  in the markdown file.
+Then we can copy the markdown file into the docs folder of the LivingHandbook repository and the image folder into the img folder as a new subfolder.
