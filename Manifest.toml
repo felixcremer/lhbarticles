@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.0"
+julia_version = "1.10.1"
 manifest_format = "2.0"
-project_hash = "706401dd6bd2717074a04a0dfbf6e0b85f0a978b"
+project_hash = "2d5a768e5f30f072fc493bd9f8a0a16f05d3406c"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -263,7 +263,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.5+1"
+version = "1.1.0+0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
@@ -1318,7 +1318,7 @@ version = "1.6.2"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+2"
+version = "0.3.23+4"
 
 [[deps.OpenEXR]]
 deps = ["Colors", "FileIO", "OpenEXR_jll"]
@@ -1563,6 +1563,12 @@ deps = ["CEnum", "CoordinateTransformations", "GeoFormatTypes", "GeoInterface", 
 git-tree-sha1 = "76ab3cbf876f3c859b6cc5817d8262809add3e13"
 uuid = "c94c279d-25a6-4763-9509-64d165bea63e"
 version = "1.7.0"
+
+[[deps.PyCall]]
+deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
+git-tree-sha1 = "9816a3826b0ebf49ab4926e2b18842ad8b5c8f04"
+uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+version = "1.96.4"
 
 [[deps.PythonCall]]
 deps = ["CondaPkg", "Dates", "Libdl", "MacroTools", "Markdown", "Pkg", "REPL", "Requires", "Serialization", "Tables", "UnsafePointers"]
