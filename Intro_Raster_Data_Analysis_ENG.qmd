@@ -36,9 +36,10 @@ affiliations:
 - id: dlr
   name: German Aerospace Center
 format:
-  markdown_strict+footnotes+backtick_code_blocks:
-    separate: true
-    rebase_relative_paths: true
+  html+minimal: default
+  #markdown_strict+footnotes+backtick_code_blocks:
+  #  separate: true
+  #  rebase_relative_paths: true
 toc: true
 number-sections: true
 documentclass: article
@@ -194,7 +195,17 @@ maps::map(add = TRUE)
 ""# | hide_line
 """; #| hide_line
 ```
-
+### "Python"
+```{julia}
+@pyexec """ #| hide_line
+global cosmo_rea6
+import os
+from pathlib import Path
+print(os.getcwd())
+dirpath = os.path.join("/home/fcremer/Documents/NFDI4Earth/lhbarticles", "data", "*.nc")
+cosmo_rea6 = xr.open_mfdataset(dirpath, engine='netcdf4')["tas"]
+""" #|hide_line
+```
 :::
 
 ## Coordinate reference system of the data
@@ -243,11 +254,11 @@ m3
 
 ```{julia}
 @pyexec """ #| hide_line
-global rasterio 
+global rasterio, cosmo_rea6
 _proj_str = "+proj=ob_tran +o_proj=latlon +o_lon=90 +o_lat_p=39.25 +lon_0=18.0"
 crs = rasterio.crs.CRS.from_proj4(_proj_str)
-#cosmo_era6 = cosmo_era6.rio.write_crs(crs)
-#cosmo_era6 = cosmo_era6.rio.reproject("EPSG:4326")["tas"].chunk({"time":1})
+cosmo_rea6 = cosmo_rea6.rio.write_crs(crs)
+#cosmo_rea6 = cosmo_rea6.rio.reproject("EPSG:4326")["tas"].chunk({"time":1})
 """ #|hide_line
 ```
 :::
@@ -332,18 +343,17 @@ summer <- c(rger[,,,1:3], rger[,,,10:12])
 
 ### "Python"
 ```{julia}
-#=
 @pyexec """ #| hide_line
+global cosmo_rea6_summer, cosmo_rea6_winter
 def is_summer(month):
     return (month > 3) & (month < 10)
 
 def is_winter(month):
     return (month <= 3) | (month >= 10)
 
-cosmo_era6_summer = cosmo_era6.sel(time=is_summer(cosmo_era6['time.month']))
-cosmo_era6_winter = cosmo_era6.sel(time=is_winter(cosmo_era6['time.month']))
+cosmo_rea6_summer = cosmo_rea6.sel(time=is_summer(cosmo_rea6['time.month']))
+cosmo_rea6_winter = cosmo_rea6.sel(time=is_winter(cosmo_rea6['time.month']))
 """ #|hide_line
-=#
 ```
 ::: 
 
@@ -372,15 +382,15 @@ plot(summer_mean_tas)
 ```
 ### "Python"
 ```{julia}
-#=
 @pyexec """ #| hide_line
-cosmo_era6_winter_mean = cosmo_era6_winter.mean(dim="time",skipna=True)
-cosmo_era6_summer_mean = cosmo_era6_summer.mean(dim="time",skipna=True)
+       global cosmo_rea6_winter_mean, cosmo_rea6_winter_std,cosmo_rea6_summer_mean, cosmo_rea6_summer_std
+       cosmo_rea6_winter_mean = cosmo_rea6_winter.groupby("time.year").mean(dim="time",skipna=True)
+       cosmo_rea6_summer_mean = cosmo_rea6_summer.groupby("time.year").mean(dim="time",skipna=True)
 
-cosmo_era6_winter_std = cosmo_era6_winter.std(dim="time",skipna=True)
-cosmo_era6_summer_std = cosmo_era6_summer.std(dim="time",skipna=True)
-""" #|hide_line
-=#
+       cosmo_rea6_winter_std = cosmo_rea6_winter.groupby("time.year").std(dim="time",skipna=True)
+       cosmo_rea6_summer_std = cosmo_rea6_summer.groupby("time.year").std(dim="time",skipna=True)
+       cosmo_rea6_winter_mean.sel(year=1995).plot()
+       """ #|hide_line
 ```
 
 ::: 
