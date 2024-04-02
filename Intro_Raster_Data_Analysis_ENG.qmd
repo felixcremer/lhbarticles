@@ -37,9 +37,9 @@ affiliations:
   name: German Aerospace Center
 format:
   html+minimal: default
-  #markdown_strict+footnotes+backtick_code_blocks:
-  #  separate: true
-  #  rebase_relative_paths: true
+  markdown_strict+footnotes+backtick_code_blocks:
+    separate: true
+    rebase_relative_paths: true
 toc: true
 number-sections: true
 documentclass: article
