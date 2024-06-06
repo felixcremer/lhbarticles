@@ -38,6 +38,7 @@ toc: true
 number-sections: true
 documentclass: article
 jupyter: julia-1.10
+engine: julia
 filters:
   - code-visibility
 ---
@@ -165,10 +166,9 @@ Now we are going to open the raster data as a datacube and plot a first overview
 
 
 ```{julia}
-r = Raster(p, key="tas", lazy=true)
+r = Raster(p, name="tas", lazy=true)
 # TODO: should we use GeoMakie for plotting?
-# TODO: This should work without the set see Rasters # 
-r = set(r, :rlat=>Y, :rlon=>X)
+#r = set(r, :rlat=>Y, :rlon=>X)
 # To get an overview we could use
 #Rasters.rplot(r)
 # Or to plot the data of January separately
@@ -186,6 +186,7 @@ m = read_mdim(file, "tas", curvilinear = c("longitude", "latitude"))
 plot(m[,,,1], downsample = 5, axes = TRUE, reset = FALSE) # downsample to save time
 maps::map(add = TRUE)
 ""# | hide_line
+file
 """; #| hide_line
 ```
 ### "Python"
@@ -280,7 +281,7 @@ bbox = GI.extent(projdeu)
 rger = r[bbox]
 heatmap(rger[Ti(Near(DateTime(1995,1,15)))])
 plot!(projdeu)
-
+current_figure()
 ``` 
 
 ### "R" 
