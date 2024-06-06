@@ -2,28 +2,22 @@
 title: "Introduction to handling raster time series in Julia, Python and R"
 subtitle: ""
 date: 2022-12-15
-author: 
+author:
   - name: Felix Cremer
-    affiliations:
-    - ref: mpibgc
+    orcidId: https://orcid.org/0000-0001-8659-4361
   - name: Hannes Dröse
-    affiliations:
-    - ref: dlr
+# orcidId: 
   - name: Arne Osterthun
-    affiliations:
-    - ref: dlr
+    orcidId: https://orcid.org/0000-0001-6455-9119
   - name: Yomna Eid
-    affiliations:
-    - ref: unimün
+    orcidId: https://orcid.org/0000-0001-7713-9682
   - name: Fabian Gans
-    affiliations:
-    - ref: mpibgc
-  - name: Sibylle Hassler 
-    affiliations: 
-    -ref: kit
-  - name: Edzer Pebesma 
-    affiliations: 
-    - ref: unimün
+    orcidId: https://orcid.org/0000-0001-9614-0435
+  - name: Sibylle Hassler
+orcidId: https://orcid.org/0000-0001-5411-8491
+  - name: Edzer Pebesma
+orcidId: https://orcid.org/0000-0001-8049-7069
+
 affiliations:
 - id: mpibgc
   name: Max-Planck Institute for Biogeochemistry
