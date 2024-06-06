@@ -12,3 +12,5 @@ data/
 *.pdf
 *.html
 *ipynb
+*.md
+.quarto/
