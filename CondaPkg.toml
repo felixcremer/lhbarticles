@@ -1,6 +1,7 @@
 [deps]
 netcdf4 = ""
 matplotlib = ""
+zarr = ""
 r = ""
 r-sf = ""
 r-stars = ""
