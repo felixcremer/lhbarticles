@@ -14,9 +14,9 @@ author:
   - name: Fabian Gans
     orcidId: https://orcid.org/0000-0001-9614-0435
   - name: Sibylle Hassler
-orcidId: https://orcid.org/0000-0001-5411-8491
+    orcidId: https://orcid.org/0000-0001-5411-8491
   - name: Edzer Pebesma
-orcidId: https://orcid.org/0000-0001-8049-7069
+    orcidId: https://orcid.org/0000-0001-8049-7069
 
 affiliations:
 - id: mpibgc
@@ -34,10 +34,9 @@ format:
   markdown_strict+footnotes+backtick_code_blocks:
     separate: true
     rebase_relative_paths: true
-toc: true
+toc: false
 number-sections: true
 documentclass: article
-jupyter: julia-1.10
 engine: julia
 filters:
   - code-visibility
