@@ -38,6 +38,7 @@ toc: false
 number-sections: true
 documentclass: article
 engine: julia
+fig-format: png
 filters:
   - code-visibility
 ---
