@@ -1,0 +1,120 @@
+---
+title: "Introduction to handling raster time series in Julia, Python and R"
+subtitle: ""
+date: 2022-12-15
+author:
+  - name: Felix Cremer
+    orcidId: https://orcid.org/0000-0001-8659-4361
+  - name: Hannes Dröse
+# orcidId: 
+  - name: Arne Osterthun
+    orcidId: https://orcid.org/0000-0001-6455-9119
+  - name: Yomna Eid
+    orcidId: https://orcid.org/0000-0001-7713-9682
+  - name: Fabian Gans
+    orcidId: https://orcid.org/0000-0001-9614-0435
+  - name: Sibylle Hassler
+    orcidId: https://orcid.org/0000-0001-5411-8491
+  - name: Edzer Pebesma
+    orcidId: https://orcid.org/0000-0001-8049-7069
+
+affiliations:
+- id: mpibgc
+  name: Max-Planck Institute for Biogeochemistry
+  city: Jena
+- id: kit
+  name: Karlsruhe Institute of Technology
+  city: Karlsruhe
+- id: unimün
+  name: University of Münster 
+- id: dlr
+  name: German Aerospace Center
+format:
+  html+minimal: default
+  markdown_strict+footnotes+backtick_code_blocks:
+    separate: true
+    rebase_relative_paths: true
+toc: false
+number-sections: true
+documentclass: article
+julia:
+    exeflags: ["--project"]    
+fig-format: png
+filters:
+  - code-visibility
+---
+
+```{julia}
+#| echo: false
+using RCall
+using PythonCall
+```
+
+# Introduction
+
+This tutorial will showcase how to work with raster data efficiently. 
+The analysis will be shown in Julia, Python and R to showcase the similarities and differences in handling raster data in these ecosystems.
+
+In this tutorial we are going to use the COSMO REA reanalyis near surface air temperature data. 
+The data is an reanalysis dataset on a 6km by 6km grid.
+We are going to use the monthly average values,
+but the data is also avialable with an hourly or daily temporal resolution.
+
+
+# Time series analysis 
+
+## Loading of necessary packages
+
+First we load the relevant packages in the different languages for working with raster and vector data and also the packages for plotting.
+
+
+::: {.panel-tabset}
+### "Julia"
+```{julia}
+#| eval: true
+using YAXArrays # This package is for handling large raster data 
+using NetCDF # This package is for opening NetCDF files 
+using GLMakie # Plotting package with a focus on interactivity
+using DimensionalData # Package to handle named and labeled arrays
+using Rasters
+using Downloads: download # Standard Library to handle downloads to get the data
+using Glob: glob
+using NCDatasets
+using GeoInterface: GeoInterface as GI # Package for handling Geospatial data
+using GADM # Package for loading state borders
+```
+
+
+### "R" 
+```{r}
+#| output: false
+
+library("rnaturalearth")
+library("rnaturalearthdata")
+library( "sf")
+library( "raster")
+library("stars")
+library("lubridate")
+```
+
+### "Python"
+
+
+```{python}
+
+import geopandas #Load GeoJSON data into #pandas dataframes
+import rasterio as rio #Handle reprojection of geospatial data
+import xarray as xr #Handle I/O and compute for n-dimensional array data
+```
+:::
+```{python}
+1+1
+xr.show_versions()
+```
+
+```{python}
+1+1
+rio.show_versions()
+```
+Now we download the airtemperature data for 1995 to the `data/` folder.
+In the first part of the tutorial we are going to only use the data from one single year, and later on we are going to combine the datasets from different years together. The data will only be downloaded if it is not yet available on the local computer. 

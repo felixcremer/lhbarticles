@@ -1,0 +1,62 @@
+---
+title: R plot from julia
+fig-width: 4
+fig-height: 3
+fig-dpi: 150
+julia:
+    exeflags: ["--project=@."]
+---
+
+
+```{julia}
+
+using RCall
+using Pkg
+#Pkg.status()
+@show RCall.Rhome
+R"plot(1:10)"
+``` 
+```{julia}
+R""" #| hide_line
+library("rnaturalearth")
+library("rnaturalearthdata")
+library( "sf")
+library( "raster")
+library("stars")
+library("lubridate")
+setwd("data/")
+"""
+```
+
+```{julia}
+R"""
+destfile <- getwd()
+
+# URL of DKRZ folder containing COSMO-REA Dataset files
+baseurl <- "http://esgf1.dkrz.de/thredds/fileServer/cosmo-rea/reanalysis/EUR-6km/DWD/ECMWF-ERAINT/REA6/r1i1p1f1/COSMO/v1/mon/atmos/tas/v20230314/tas_EUR-6km_ECMWF-ERAINT_REA6_r1i1p1f1_COSMO_v1_mon_"
+urlList <- "0"
+l1 <- format(seq(as.Date("1995-01-01"), as.Date("2018-01-01"), by="year"), format = "%Y%m")
+l2 <- format(seq(as.Date("1995-12-01"), as.Date("2018-12-01"), by="year"), format = "%Y%m")
+
+for (i in 1:length(l1)) {
+  x <- paste0(baseurl,l1[i],"-",l2[i],".nc")
+# Use the following line to download the data to the destfile folder
+#download.file(x, paste0(destfile,"\\", basename(x)), mode = "wb") #download files
+  urlList[i] <- x
+  i = i + 1
+}
+urlList
+""" #| hide_line
+``` 
+
+```{julia}
+using RCall #| hide_line
+R"""#| hide_line
+file = paste0(destfile, "/", basename(urlList[1]))
+m = read_mdim(file, "tas", curvilinear = c("longitude", "latitude"))
+plot(m[,,,1], downsample = 5, axes = TRUE, reset = FALSE) # downsample to save time
+maps::map(add = TRUE)
+""# | hide_line
+"""; #| hide_line
+```
+
