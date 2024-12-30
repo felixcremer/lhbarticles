@@ -1,0 +1,3 @@
+[RCall]
+Rhome = "/home/fcremer/Documents/NFDI4Earth/lhbarticles/.CondaPkg/env/lib/R"
+libR = "/home/fcremer/Documents/NFDI4Earth/lhbarticles/.CondaPkg/env/lib/R/lib/libR.so"
