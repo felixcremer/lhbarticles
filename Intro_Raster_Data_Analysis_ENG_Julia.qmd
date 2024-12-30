@@ -1,0 +1,206 @@
+---
+title: "Introduction to handling raster time series in Julia, Python and R"
+subtitle: ""
+date: 2022-12-15
+author:
+  - name: Felix Cremer
+    orcidId: https://orcid.org/0000-0001-8659-4361
+  - name: Hannes Dröse
+# orcidId: 
+  - name: Arne Osterthun
+    orcidId: https://orcid.org/0000-0001-6455-9119
+  - name: Yomna Eid
+    orcidId: https://orcid.org/0000-0001-7713-9682
+  - name: Fabian Gans
+    orcidId: https://orcid.org/0000-0001-9614-0435
+  - name: Sibylle Hassler
+    orcidId: https://orcid.org/0000-0001-5411-8491
+  - name: Edzer Pebesma
+    orcidId: https://orcid.org/0000-0001-8049-7069
+
+affiliations:
+- id: mpibgc
+  name: Max-Planck Institute for Biogeochemistry
+  city: Jena
+- id: kit
+  name: Karlsruhe Institute of Technology
+  city: Karlsruhe
+- id: unimün
+  name: University of Münster 
+- id: dlr
+  name: German Aerospace Center
+format:
+  html+minimal: default
+  markdown_strict+footnotes+backtick_code_blocks:
+    separate: true
+    rebase_relative_paths: true
+toc: false
+number-sections: true
+documentclass: article
+engine: julia
+fig-format: png
+filters:
+  - code-visibility
+---
+
+```{julia}
+#| echo: false
+using RCall
+using PythonCall
+```
+
+# Introduction
+
+This tutorial will showcase how to work with raster data efficiently. 
+The analysis will be shown in Julia, Python and R to showcase the similarities and differences in handling raster data in these ecosystems.
+
+In this tutorial we are going to use the [COSMO REA reanalyis near surface air temperature data](https://www.wdc-climate.de/ui/entry?acronym=CR6_EU6). 
+The data is an reanalysis dataset on a 6km by 6km grid.
+We are going to use the monthly average values,
+but the data is also avialable with an hourly or daily temporal resolution.
+The data was produced in the GRIB format but was converted to NetCDF files in the [NFDI4Earth Pilot ](Link here). 
+
+
+# Time series analysis 
+
+## Loading of necessary packages
+
+First we load the relevant packages in the different languages for working with raster and vector data and also the packages for plotting.
+
+
+### "Julia"
+```{julia}
+using Rasters
+using NCDatasets
+using YAXArrays
+using NetCDF
+using GLMakie # Plotting package with a focus on interactivity
+using DimensionalData # Package to handle named and labeled arrays
+using Dates # Standard Library for Data and Time handling
+using Downloads: download # Standard Library to handle downloads to get the data
+using Glob: glob # Search data as the glob command line interface
+using GeoInterface: GeoInterface as GI # Package for handling Geospatial data
+using GADM # Package for loading state borders
+```
+
+:::
+
+Now we download the airtemperature data for 1995 to the `data/` folder.
+In the first part of the tutorial we are going to only use the data from one single year, and later on we are going to combine the datasets from different years together. The data will only be downloaded if it is not yet available on the local computer. 
+
+
+### "Julia"
+
+
+
+```{julia}
+url = "http://esgf1.dkrz.de/thredds/fileServer/cosmo-rea/reanalysis/EUR-6km/DWD/ECMWF-ERAINT/REA6/r1i1p1f1/COSMO/v1/mon/atmos/tas/v20230314/tas_EUR-6km_ECMWF-ERAINT_REA6_r1i1p1f1_COSMO_v1_mon_199601-199612.nc"
+filename = split(url, "/")[end]
+mkpath("data/")
+p = joinpath(@__DIR__, "data", filename)
+if !isfile(p)
+  download(url, p)
+end
+```
+
+
+
+
+## Opening the data and first map
+
+Now we are going to open the raster data as a datacube and plot a first overview map.
+
+
+
+### "Julia"
+
+
+```{julia}
+r = Raster(p, name="tas", lazy=true)
+# TODO: should we use GeoMakie for plotting?
+#r = set(r, :rlat=>Y, :rlon=>X)
+# To get an overview we could use
+#Rasters.rplot(r)
+# Or to plot the data of January separately
+heatmap(r[Ti(Near(DateTime(1995,1,15)))])
+
+```
+
+## Coordinate reference system of the data
+
+The data is in a rotated latitude longitude grid.
+This rotation helps to reduce the spatial distortions of the data because of the projection.
+For an introduction into the concepts of 
+Here we construct a projection string from the metadata of the dataset so that we can use this projection information latter on for converting between different coordinate reference systems. 
+
+
+### "Julia"
+In Julia we construct a Proj representation of the coordinate reference system so that we can convert the vector data that we are going to use later on for subsetting the dataset into the CRS of the raster data.
+
+```{julia}
+ds = open_dataset(p)
+olonp = 180 + ds.rotated_latitude_longitude.properties["grid_north_pole_longitude"]
+olatp = ds.rotated_latitude_longitude.properties["grid_north_pole_latitude"]
+
+proj = "+proj=ob_tran +o_proj=latlon +o_lon_p=0 +o_lat_p=$olatp +lon_0=$olonp"
+```
+
+## Restricting to an area of interest
+
+Now we load the polygon data for the border of Germany to restrict our data to the bounding box of Germany.
+
+
+
+We use the GADM package to load the boundary polygon for Germany.
+Then we reproject the polygon to the rotated longitude latitude grid.
+
+```{julia}
+using GADM
+using ArchGDAL:ArchGDAL as AG
+using GLMakie
+using GeoInterfaceMakie: GeoInterfaceMakie
+GeoInterfaceMakie.@enable AG.AbstractGeometry
+
+deu = GADM.get("DEU")
+projdeu = AG.reproject(only(deu.geom), ProjString(AG.toPROJ4(AG.getspatialref(deu.geom[1]))), ProjString(proj))
+# Should work like that
+#projdeu = AG.reproject(deu, ProjString(proj))
+bbox = GI.extent(projdeu)
+rger = r[bbox]
+heatmap(rger[Ti(Near(DateTime(1995,1,15)))])
+plot!(projdeu)
+current_figure()
+``` 
+
+
+## Split the time series into two seasons
+
+
+Now we split the time series data into two datasets by season.
+
+Hereby we define the summer as the time between the spring and autumn equinox. 
+Since we are using monthly data in this example, we define summer as April to September.
+We can define the winter as every month that is not included in the summer dataset.
+
+
+```{julia}
+summer = rger[Ti=Date(1996,4,1)..Date(1996, 10,1)]
+winter = rger[Ti=Not(Date(1996, 4,1)..Date(1996,10,1))]
+
+``` 
+
+
+Now we compute the standard deviation and the mean of the time series for the "summer" and the "winter" dataset.
+
+
+```{julia}
+summer = rger[Ti=Date(1996,4,1)..Date(1996, 10,1)]
+winter = rger[Ti=Not(Date(1996, 4,1)..Date(1996,10,1))]
+using Statistics
+summermean = mapslices(mean, summer, dims=Ti)
+wintermean = mapslices(mean, winter, dims=Ti)
+winterstd = mapslices(std, winter, dims=Ti)
+plot(summermean[:,:,1])
+``` 
+
+
