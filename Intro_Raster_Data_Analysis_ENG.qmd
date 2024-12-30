@@ -71,6 +71,8 @@ First we load the relevant packages in the different languages for working with 
 ::: {.panel-tabset}
 ### "Julia"
 ```{julia}
+using Pkg
+Pkg.instantiate()
 using YAXArrays # This package is for handling large raster data 
 using NetCDF # This package is for opening NetCDF files 
 using GLMakie # Plotting package with a focus on interactivity
