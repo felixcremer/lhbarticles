@@ -43,15 +43,22 @@ filters:
   - code-visibility
 ---
 
+```{julia}
+#| echo: false
+using RCall
+using PythonCall
+```
+
 # Introduction
 
 This tutorial will showcase how to work with raster data efficiently. 
 The analysis will be shown in Julia, Python and R to showcase the similarities and differences in handling raster data in these ecosystems.
 
-In this tutorial we are going to use the COSMO REA reanalyis near surface air temperature data. 
+In this tutorial we are going to use the [COSMO REA reanalyis near surface air temperature data](https://www.wdc-climate.de/ui/entry?acronym=CR6_EU6). 
 The data is an reanalysis dataset on a 6km by 6km grid.
 We are going to use the monthly average values,
 but the data is also avialable with an hourly or daily temporal resolution.
+The data was produced in the GRIB format but was converted to NetCDF files in the [NFDI4Earth Pilot ](Link here). 
 
 
 # Time series analysis 
@@ -77,18 +84,14 @@ using GADM # Package for loading state borders
 ```
 
 ### "R" 
-```{julia}
+```{r}
 #| output: false
-
-using RCall #| hide_line
-R""" #| hide_line
 library("rnaturalearth")
 library("rnaturalearthdata")
-library( "sf")
-library( "raster")
+library("sf")
+library("raster")
 library("stars")
 library("lubridate")
-""" #| hide_line
 ```
 
 ### "Python"
