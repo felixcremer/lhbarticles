@@ -276,10 +276,14 @@ using GADM
 using ArchGDAL:ArchGDAL as AG
 using GLMakie
 using GeoInterfaceMakie: GeoInterfaceMakie
+using GeometryOps: GeometryOps as GO
 GeoInterfaceMakie.@enable AG.AbstractGeometry
+@eval GADM.ArchGDAL begin
+  GeoInterface.trait(::IFeature) = GeoInterface.FeatureTrait()
+end
 
 deu = GADM.get("DEU")
-projdeu = AG.reproject(only(deu.geom), ProjString(AG.toPROJ4(AG.getspatialref(deu.geom[1]))), ProjString(proj))
+projdeu = GO.reproject(only(deu.geom), ProjString(AG.toPROJ4(AG.getspatialref(deu.geom[1]))), ProjString(proj))
 # Should work like that
 #projdeu = AG.reproject(deu, ProjString(proj))
 bbox = GI.extent(projdeu)
@@ -390,3 +394,6 @@ py""" #| hide_line
 
 ::: 
 
+In this tutorial we learned how to work with raster data in .
+We explored the COSMO-REA dataset and computed temporal statistics for different seasons. 
+For the computations we selected a smaller area of interest.
