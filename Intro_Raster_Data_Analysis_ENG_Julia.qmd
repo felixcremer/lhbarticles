@@ -1,7 +1,7 @@
 ---
-title: "Introduction to handling raster time series in Julia, Python and R"
+title: "Introduction to handling raster time series in Julia"
 subtitle: ""
-date: 2022-12-15
+date: 2024-12-15
 author:
   - name: Felix Cremer
     orcidId: https://orcid.org/0000-0001-8659-4361
@@ -43,11 +43,6 @@ filters:
   - code-visibility
 ---
 
-```{julia}
-#| echo: false
-using RCall
-using PythonCall
-```
 
 # Introduction
 
@@ -83,7 +78,7 @@ using GeoInterface: GeoInterface as GI # Package for handling Geospatial data
 using GADM # Package for loading state borders
 ```
 
-:::
+
 
 Now we download the airtemperature data for 1995 to the `data/` folder.
 In the first part of the tutorial we are going to only use the data from one single year, and later on we are going to combine the datasets from different years together. The data will only be downloaded if it is not yet available on the local computer. 
@@ -134,15 +129,16 @@ For an introduction into the concepts of
 Here we construct a projection string from the metadata of the dataset so that we can use this projection information latter on for converting between different coordinate reference systems. 
 
 
-### "Julia"
+:::{.callout-note}
 In Julia we construct a Proj representation of the coordinate reference system so that we can convert the vector data that we are going to use later on for subsetting the dataset into the CRS of the raster data.
+:::
 
 ```{julia}
 ds = open_dataset(p)
 olonp = 180 + ds.rotated_latitude_longitude.properties["grid_north_pole_longitude"]
 olatp = ds.rotated_latitude_longitude.properties["grid_north_pole_latitude"]
 
-proj = "+proj=ob_tran +o_proj=latlon +o_lon_p=0 +o_lat_p=$olatp +lon_0=$olonp"
+projstring = "+proj=ob_tran +o_proj=latlon +o_lon_p=0 +o_lat_p=$olatp +lon_0=$olonp"
 ```
 
 ## Restricting to an area of interest
@@ -159,17 +155,21 @@ using GADM
 using ArchGDAL:ArchGDAL as AG
 using GLMakie
 using GeoInterfaceMakie: GeoInterfaceMakie
+using GeometryOps: GeometryOps as GO
+using Proj
 GeoInterfaceMakie.@enable AG.AbstractGeometry
-
+@eval GADM.ArchGDAL begin
+  GeoInterface.trait(::IFeature) = GeoInterface.FeatureTrait()
+end
 deu = GADM.get("DEU")
-projdeu = AG.reproject(only(deu.geom), ProjString(AG.toPROJ4(AG.getspatialref(deu.geom[1]))), ProjString(proj))
+projdeu = GO.reproject(deu, target_crs=projstring)
 # Should work like that
 #projdeu = AG.reproject(deu, ProjString(proj))
-bbox = GI.extent(projdeu)
+bbox = GI.extent(projdeu.parent[1])
 rger = r[bbox]
 heatmap(rger[Ti(Near(DateTime(1995,1,15)))])
-plot!(projdeu)
-current_figure()
+#plot!(projdeu)
+#current_figure()
 ``` 
 
 
@@ -203,4 +203,8 @@ winterstd = mapslices(std, winter, dims=Ti)
 plot(summermean[:,:,1])
 ``` 
 
+## Summary
 
+In this tutorial we learned how to work with raster data in Julia.
+We explored the COSMO-REA dataset and computed temporal statistics for different seasons. 
+For the computations we selected a smaller area of interest.
