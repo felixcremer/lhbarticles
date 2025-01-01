@@ -37,17 +37,12 @@ format:
 toc: false
 number-sections: true
 documentclass: article
-engine: julia
 fig-format: png
 filters:
   - code-visibility
 ---
 
-```{julia}
-#| echo: false
-using RCall
-using PythonCall
-```
+
 
 # Introduction
 
@@ -74,10 +69,9 @@ First we load the relevant packages in the different languages for working with 
 library("rnaturalearth")
 library("rnaturalearthdata")
 library("sf")
-print(packageVersion("sf"))
-#library("raster")
-#library("stars")
-#library("lubridate")
+library("raster")
+library("stars")
+library("lubridate")
 ```
 
 
@@ -119,8 +113,6 @@ file = paste0(destfile, "/", basename(urlList[1]))
 m = read_mdim(file, "tas", curvilinear = c("longitude", "latitude"))
 plot(m[,,,1], downsample = 5, axes = TRUE, reset = FALSE) # downsample to save time
 maps::map(add = TRUE)
-""# | hide_line
-file
 ```
 
 ## Coordinate reference system of the data
