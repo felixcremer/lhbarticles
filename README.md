@@ -30,7 +30,13 @@ To run the three language quarto notebook we are using Julia as the main process
 - For example to install the sf R package we use this command in the Julia REPL:
 - ] conda add r-sf
 
+We are currently using the global R version and the python version in the .CondaPkg folder for the separate notebooks.
+The R package installation is currently not reproducible.
+For using the conda python we set the following environment variable before rendering the notebook with quarto:
 
+```
+export QUARTO_PYTHON=".CondaPkg/env/bin/python"
+```
 
 # Convert the quarto notebook to mkdocs
 

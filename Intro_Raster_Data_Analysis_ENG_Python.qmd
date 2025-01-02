@@ -37,17 +37,10 @@ format:
 toc: false
 number-sections: true
 documentclass: article
-engine: julia
 fig-format: png
 filters:
   - code-visibility
 ---
-
-```{julia}
-#| echo: false
-using RCall
-using PythonCall
-```
 
 # Introduction
 
@@ -71,13 +64,10 @@ First we load the relevant packages in the different languages for working with 
 
 ### "Python"
 
-```{julia}
-using PyCall #| hide_line
-py""" #| hide_line
+```{python}
 import geopandas #Load GeoJSON data into #pandas dataframes
 import rasterio #Handle reprojection of geospatial data
 import xarray as xr #Handle I/O and compute for n-dimensional array data
-""" #|hide_line
 ```
 
 
@@ -85,26 +75,17 @@ Now we download the airtemperature data for 1995 to the `data/` folder.
 In the first part of the tutorial we are going to only use the data from one single year, and later on we are going to combine the datasets from different years together. The data will only be downloaded if it is not yet available on the local computer. 
 
 
-```{julia}
-py""" #| hide_line
-""" #|hide_line
-```
-
-
-
 ## Opening the data and first map
 
 Now we are going to open the raster data as a datacube and plot a first overview map.
 
 
-```{julia}
-py""" #| hide_line
+```{python}
 import os
 from pathlib import Path
 print(os.getcwd())
 dirpath = os.path.join("/home/fcremer/Documents/NFDI4Earth/lhbarticles", "data", "*.nc")
 cosmo_rea6 = xr.open_mfdataset(dirpath, engine='netcdf4')["tas"]
-""" #|hide_line
 ```
 
 ## Coordinate reference system of the data
@@ -115,24 +96,17 @@ For an introduction into the concepts of
 Here we construct a projection string from the metadata of the dataset so that we can use this projection information latter on for converting between different coordinate reference systems. 
 
 
-```{julia}
-py""" #| hide_line
+```{python}
 _proj_str = "+proj=ob_tran +o_proj=latlon +o_lon=90 +o_lat_p=39.25 +lon_0=18.0"
 crs = rasterio.crs.CRS.from_proj4(_proj_str)
 cosmo_rea6 = cosmo_rea6.rio.write_crs(crs)
 #cosmo_rea6 = cosmo_rea6.rio.reproject("EPSG:4326")["tas"].chunk({"time":1})
-""" #|hide_line
 ```
 
 ## Restricting to an area of interest
 
 Now we load the polygon data for the border of Germany to restrict our data to the bounding box of Germany.
 
-```{julia}
-py"""
-# Add code for bounding box restriction
-"""
-```
 
 ## Split the time series into two seasons
 
@@ -143,8 +117,7 @@ Hereby we define the summer as the time between the spring and autumn equinox.
 Since we are using monthly data in this example, we define summer as April to September.
 We can define the winter as every month that is not included in the summer dataset.
 
-```{julia}
-py""" #| hide_line
+```{python}
 def is_summer(month):
     return (month > 3) & (month < 10)
 
@@ -153,24 +126,20 @@ def is_winter(month):
 
 cosmo_rea6_summer = cosmo_rea6.sel(time=is_summer(cosmo_rea6['time.month']))
 cosmo_rea6_winter = cosmo_rea6.sel(time=is_winter(cosmo_rea6['time.month']))
-""" #|hide_line
 ```
-::: 
 
 Now we compute the standard deviation and the mean of the time series for the "summer" and the "winter" dataset.
 
-```{julia}
-py""" #| hide_line
-       cosmo_rea6_winter_mean = cosmo_rea6_winter.groupby("time.year").mean(dim="time",skipna=True)
-       cosmo_rea6_summer_mean = cosmo_rea6_summer.groupby("time.year").mean(dim="time",skipna=True)
+```{python}
+cosmo_rea6_winter_mean = cosmo_rea6_winter.groupby("time.year").mean(dim="time",skipna=True)
+cosmo_rea6_summer_mean = cosmo_rea6_summer.groupby("time.year").mean(dim="time",skipna=True)
 
-       cosmo_rea6_winter_std = cosmo_rea6_winter.groupby("time.year").std(dim="time",skipna=True)
-       cosmo_rea6_summer_std = cosmo_rea6_summer.groupby("time.year").std(dim="time",skipna=True)
-       #cosmo_rea6_winter_mean.sel(year=1995).plot()
-       """ #|hide_line
+cosmo_rea6_winter_std = cosmo_rea6_winter.groupby("time.year").std(dim="time",skipna=True)
+cosmo_rea6_summer_std = cosmo_rea6_summer.groupby("time.year").std(dim="time",skipna=True)
+#cosmo_rea6_winter_mean.sel(year=1995).plot()
 ```
 
-::: 
+## Summary
 
 In this tutorial we learned how to work with raster data in Python.
 We explored the COSMO-REA dataset and computed temporal statistics for different seasons. 
